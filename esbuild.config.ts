@@ -3,7 +3,6 @@ import process from "process";
 import { builtinModules } from "module";
 
 const prod = process.argv[2] === "production";
-console.log("BUILD TIME CLIENT ID:", process.env.DEVICE_FLOW_CLIENT_ID);
 
 async function main() {
   const context = await esbuild.context({
@@ -33,9 +32,6 @@ async function main() {
     treeShaking: true,
     outfile: "main.js",
     minify: prod,
-    define: {
-      "process.env.DEVICE_FLOW_CLIENT_ID": JSON.stringify(process.env.DEVICE_FLOW_CLIENT_ID || ""),
-    },
   });
 
   if (prod) {

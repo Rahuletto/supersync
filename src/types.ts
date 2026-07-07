@@ -49,7 +49,7 @@ export type ConflictResolution = "local" | "remote" | "both";
 
 export const DEFAULT_SETTINGS: Settings = {
   token: "",
-  deviceFlowClientId: process.env.DEVICE_FLOW_CLIENT_ID || "",
+  deviceFlowClientId: "Ov23libm5xiE4V1rzwBQ",
   owner: "",
   repo: "obsidian-sync",
   branch: "main",

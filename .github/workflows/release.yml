@@ -7,10 +7,6 @@ on:
         description: "Release version (e.g. 1.0.1)"
         required: true
         type: string
-      device_flow_client_id:
-        description: "GitHub OAuth Device Flow Client ID (optional override)"
-        required: false
-        type: string
 
 jobs:
   release:
@@ -55,8 +51,6 @@ jobs:
           "
 
       - name: Build plugin
-        env:
-          DEVICE_FLOW_CLIENT_ID: ${{ github.event.inputs.device_flow_client_id || secrets.DEVICE_FLOW_CLIENT_ID }}
         run: bun run build
 
       - name: Update bun lockfile
