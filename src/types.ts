@@ -52,7 +52,7 @@ export const DEFAULT_SETTINGS: Settings = {
   token: "",
   deviceFlowClientId: process.env.DEVICE_FLOW_CLIENT_ID || "",
   owner: "",
-  repo: "super-sync",
+  repo: "obsidian-sync",
   branch: "main",
   rootPath: "",
   authorName: "SuperSync",

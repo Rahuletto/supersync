@@ -49,6 +49,9 @@ export class SuperSyncSettingTab extends PluginSettingTab {
             .onClick(() => void this.plugin.startDeviceFlowLogin()),
         );
     }
+    this.text("Repository owner", "GitHub username or organization (optional, defaults to authenticated user)", "owner");
+    this.text("Repository name", "GitHub repository name", "repo");
+    this.text("Branch", "Branch to sync with", "branch");
     this.text("Root path", "Optional subfolder inside the repo", "rootPath");
     this.toggle(
       "Automatic sync",

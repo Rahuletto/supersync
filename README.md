@@ -60,7 +60,7 @@ If you prefer manual installation or want to test a specific version:
 
 ### Step 1: Initialize a Private GitHub Repository
 1. Log in to [GitHub](https://github.com).
-2. Create a new repository (we recommend naming it `super-sync`).
+2. Create a new repository (we recommend naming it `obsidian-sync`).
 3. **⚠️ Critical Security Warning**: Ensure the repository visibility is set to **Private** to protect your personal notes and files from being publicly accessible.
 
 ### Step 2: Authenticate the Plugin
@@ -71,7 +71,7 @@ If you prefer manual installation or want to test a specific version:
 5. Authorize the application. The plugin settings tab will update to show you are successfully authenticated.
 
 ### Step 3: Configure Repository Settings
-* **Repository Name**: Set this to the repository you created in Step 1 (e.g., `super-sync`).
+* **Repository Name**: Set this to the repository you created in Step 1 (e.g., `obsidian-sync`).
 * **Branch**: Default is `main`.
 * **Sync Triggers**: Enable "Sync on Startup", "Sync on File Change", or adjust the periodic interval.
 
