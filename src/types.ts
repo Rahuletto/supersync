@@ -1,4 +1,3 @@
-import { PLUGIN_ID } from "./constants";
 
 export interface Settings {
   token: string;
