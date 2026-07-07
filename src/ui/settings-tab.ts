@@ -23,7 +23,7 @@ export class SuperSyncSettingTab extends PluginSettingTab {
         .addButton((button) =>
           button
             .setButtonText("Sign out")
-            .setDestructive()
+            .setWarning()
             .onClick(async () => {
               this.plugin.settings.token = "";
               this.plugin.settings.owner = "";

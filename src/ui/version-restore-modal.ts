@@ -71,7 +71,7 @@ export class RestoreConfirmModal extends Modal {
         button
           .setButtonText("Restore (Overwrite)")
           .setCta()
-          .setDestructive()
+          .setWarning()
           .onClick(async () => {
             button.setDisabled(true);
             button.setButtonText("Restoring...");
