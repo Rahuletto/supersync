@@ -36,7 +36,7 @@ export class DeviceFlowModal extends Modal {
     });
 
     // Code container
-    const codeContainer = contentEl.createDiv({ cls: "git-sync-code-container" });
+    const codeContainer = contentEl.createDiv({ cls: "obsidian-sync-code-container" });
     codeContainer.style.display = "flex";
     codeContainer.style.alignItems = "center";
     codeContainer.style.gap = "10px";
@@ -64,7 +64,7 @@ export class DeviceFlowModal extends Modal {
     // Verification URL info
     contentEl.createEl("p", {
       text: `Verification URL: ${this.device.verification_uri}`,
-      cls: "git-sync-url-info"
+      cls: "obsidian-sync-url-info"
     });
 
     // Primary action: Open GitHub
@@ -101,9 +101,9 @@ export class DeviceFlowModal extends Modal {
     this.spinnerEl.style.animation = "spin 1s linear infinite";
     
     // Inject keyframes style if not exists
-    if (!document.getElementById("git-sync-spinner-style")) {
+    if (!document.getElementById("obsidian-sync-spinner-style")) {
       const style = document.createElement("style");
-      style.id = "git-sync-spinner-style";
+      style.id = "obsidian-sync-spinner-style";
       style.textContent = "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }";
       document.head.appendChild(style);
     }

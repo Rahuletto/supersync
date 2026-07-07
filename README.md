@@ -1,59 +1,113 @@
-# GitSync
+# 🌌 ObsidianSync
 
-GitSync is a lightweight, unified Obsidian plugin designed to synchronize your Obsidian vaults directly with a **private GitHub repository** using the GitHub REST and Git Data APIs. It works seamlessly across both desktop and mobile platforms.
+<p align="center">
+  <a href="obsidian://show-plugin?id=obsidiansync">
+    <img src="https://img.shields.io/badge/Install%20in-Obsidian-purple?style=for-the-badge&logo=obsidian&logoColor=white" alt="Install in Obsidian" />
+  </a>
+</p>
 
----
+<p align="center">
+  <img src="https://img.shields.io/github/v/release/rahuletto/obsidiansync?color=8a2be2&style=flat-square&logo=github" alt="GitHub Release" />
+  &nbsp;&nbsp;•&nbsp;&nbsp;
+  <em>Developed by Rahuletto</em>
+</p>
 
-## 🔒 Security & Privacy Notice
-* **Private Repository**: GitSync is designed to sync with a **private** GitHub repository (defaulting to `obsidian-sync`). Always keep this repository private to protect your personal notes and vault contents.
-* **Credentials**: Authentication is handled locally via the GitHub Device Flow. Your OAuth Access Token is saved securely inside your vault's local plugin settings file (`data.json`) and is never sent to any external server other than the official GitHub API.
+**ObsidianSync** is a lightweight, unified, and secure Obsidian plugin designed to synchronize your Obsidian vaults directly with a **private GitHub repository** using the GitHub REST and Git Data APIs.
+
+Unlike traditional git-based plugins, ObsidianSync **does not require a local Git installation** or command-line dependencies. It works seamlessly out-of-the-box across **both desktop and mobile platforms** (iOS & Android).
 
 ---
 
 ## ✨ Features
-* **Zero-Password Login**: Log in securely using GitHub's official **Device Authorization Flow** (entering a code in the browser). No need to copy-paste fine-grained Personal Access Tokens.
-* **Safety First**: Prevents local data loss. In case of conflicting edits, local changes are preserved, and the remote version is downloaded as a `.conflict-` file.
-* **Intelligent Ignores**: Exclude system files (`.DS_Store`), trash folders, or workspace configurations via customizable glob ignore rules.
-* **Automated Syncing**: Configurable automatic syncing on vault startup, immediately following file changes, or periodically on an interval timer.
-* **Version History Restore**: Browse commit history and restore individual files to past versions directly from Obsidian.
+
+* **📱 Cross-Platform Compatibility**: Syncs your vault on iOS, Android, macOS, Windows, and Linux without needing native Git clients.
+* **🔑 Zero-Password Security**: Log in securely using GitHub's official **Device Authorization Flow**. Enter a simple code in your browser—no Personal Access Token copy-pasting required.
+* **🛡️ Conflict Prevention (Safety First)**: Never lose local edits. In case of concurrent changes, ObsidianSync preserves both versions, saving the remote version with a `.conflict-[timestamp]` suffix.
+* **🔄 Advanced Sync Rules**:
+  * Auto-sync on startup.
+  * Auto-sync immediately after local file changes.
+  * Periodic interval syncing (customizable timer).
+* **📦 Version History**: Browse commits and restore previous versions of individual files directly inside Obsidian.
+* **⚙️ Intelligent Ignore System**: Exclude system files (`.DS_Store`), trash folders (`.trash`), or workspace states through customizable glob patterns.
 
 ---
 
-## 🛠️ Development & Building
+## 🚀 Installation
 
-GitSync uses **Bun** as its package manager and runtime execution engine.
+### Direct Install (Obsidian Community Store)
+If you have Obsidian installed, click the button below to open the plugin directly:
 
-### 1. Prerequisites
-Ensure you have [Bun](https://bun.sh) installed:
+<p align="center">
+  <a href="obsidian://show-plugin?id=obsidiansync">
+    <img src="https://img.shields.io/badge/Install-Open%20in%20Obsidian-purple?style=for-the-badge&logo=obsidian&logoColor=white" alt="Install in Obsidian" />
+  </a>
+</p>
+
+### Manual Installation
+If you prefer manual installation or want to test a specific version:
+1. Download the latest release (`main.js`, `manifest.json`, `styles.css`) from the [Releases](https://github.com/rahuletto/obsidiansync/releases) page.
+2. Inside your Obsidian vault, navigate to `.obsidian/plugins/` (create the `plugins` folder if it doesn't exist).
+3. Create a folder named `obsidiansync` and paste the downloaded files inside it.
+4. Open Obsidian, go to **Settings > Community plugins**, refresh, and enable **ObsidianSync**.
+
+---
+
+## ⚙️ Setup Guide
+
+### Step 1: Initialize a Private GitHub Repository
+1. Log in to [GitHub](https://github.com).
+2. Create a new repository (we recommend naming it `obsidian-sync`).
+3. **⚠️ Critical Security Warning**: Ensure the repository visibility is set to **Private** to protect your personal notes and files from being publicly accessible.
+
+### Step 2: Authenticate the Plugin
+1. Open Obsidian and go to **Settings > ObsidianSync**.
+2. Click **Sign in with GitHub**.
+3. A modal will display a **Device Code** (e.g., `ABCD-1234`).
+4. Click **Open GitHub** or navigate to [github.com/login/device](https://github.com/login/device) and enter the code.
+5. Authorize the application. The plugin settings tab will update to show you are successfully authenticated.
+
+### Step 3: Configure Repository Settings
+* **Repository Name**: Set this to the repository you created in Step 1 (e.g., `obsidian-sync`).
+* **Branch**: Default is `main`.
+* **Sync Triggers**: Enable "Sync on Startup", "Sync on File Change", or adjust the periodic interval.
+
+---
+
+## 🛠️ Local Development
+
+ObsidianSync uses **Bun** as its package manager and compilation runtime.
+
+### Prerequisites
+Make sure you have [Bun](https://bun.sh) installed:
 ```bash
-# To install Bun (macOS/Linux)
 curl -fsSL https://bun.sh/install | sh
 ```
 
-### 2. Local Configuration
-Create a local `.env` file in the root directory (this is automatically ignored by Git):
-```env
-OBSIDIAN_VAULT_PATH=/path/to/your/Obsidian/Vault
-DEVICE_FLOW_CLIENT_ID=your_oauth_client_id
-```
+### Local Setup
+1. Clone this repository.
+2. Install dependencies:
+   ```bash
+   bun install
+   ```
+3. Create a `.env` file in the root directory:
+   ```env
+   OBSIDIAN_VAULT_PATH=/absolute/path/to/your/Obsidian/Vault
+   DEVICE_FLOW_CLIENT_ID=your_github_oauth_client_id
+   ```
 
-### 3. Scripts
-* **Clean & Build**:
-  Builds the production-ready bundle into `main.js`.
-  ```bash
-  bun run build
-  ```
-* **Run Tests**:
-  Compiles and executes the unit tests for the core sync planning engine.
-  ```bash
-  bun run test
-  ```
-* **Sync to Local Vault**:
-  Builds the plugin and copies the compiled assets (`main.js`, `manifest.json`, `styles.css`) directly to your vault's plugin directory for testing.
-  ```bash
-  bun run sync-plugin
-  ```
+### Scripts
+* **Build Bundle**: `bun run build`
+* **Run Tests**: `bun run test`
+* **Sync directly to Vault**: `bun run sync-plugin`
 
 ---
 
-*Developed by Rahuletto (https://marban.lol) for GitSync.*
+## 🔒 Security & Privacy
+
+Your credentials and notes are secure:
+* **Direct Connections**: All requests are sent directly from your device to the official GitHub API. No intermediate servers are used.
+* **Token Storage**: Your OAuth access token is stored locally in your vault (`.obsidian/plugins/obsidiansync/data.json`) and never shared.
+
+---
+
+*Developed with ❤️ by [Rahuletto](https://marban.lol).*

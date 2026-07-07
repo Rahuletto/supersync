@@ -29,14 +29,14 @@ import { SyncLogModal } from "./src/ui/sync-log-modal";
 import { DeviceFlowModal } from "./src/ui/device-flow-modal";
 import { VersionRestoreModal } from "./src/ui/version-restore-modal";
 import { SyncStatusView } from "./src/ui/sync-status-view";
-import { GitSyncSettingTab } from "./src/ui/settings-tab";
+import { ObsidianSyncSettingTab } from "./src/ui/settings-tab";
 
-export default class PrivateGithubSyncPlugin extends Plugin {
+export default class ObsidianSyncPlugin extends Plugin {
   settings: Settings = DEFAULT_SETTINGS;
   syncManifest: Manifest = {};
   vaultHelper!: VaultHelper;
   githubClient!: GithubClient;
-  settingTab?: GitSyncSettingTab;
+  settingTab?: ObsidianSyncSettingTab;
   
   private syncing = false;
   private queued = false;
@@ -80,7 +80,7 @@ export default class PrivateGithubSyncPlugin extends Plugin {
 
     this.statusBar = this.addStatusBarItem();
     this.setStatus("GitHub Sync: idle");
-    this.settingTab = new GitSyncSettingTab(this.app, this);
+    this.settingTab = new ObsidianSyncSettingTab(this.app, this);
     this.addSettingTab(this.settingTab);
     this.registerView(
       VIEW_TYPE_SYNC_STATUS,
@@ -239,7 +239,7 @@ export default class PrivateGithubSyncPlugin extends Plugin {
       this.vaultHelper.pluginWrites.add(newPath);
       await this.app.vault.create(
         newPath,
-        `# 🔒 Private Obsidian Vault\n\nThis repository stores a private, secure backup of your Obsidian vault, synchronized automatically by **GitSync**.\n\n## ⚠️ Important Notes\n* **Keep Private**: This repository contains your personal notes. Do not make this repository public.\n* **Automated Sync**: Files are synced automatically by the GitSync plugin. Avoid manual modifications to the files directly on GitHub to prevent sync conflicts.\n`,
+        `# 🔒 Private Obsidian Vault\n\nThis repository stores a private, secure backup of your Obsidian vault, synchronized automatically by **ObsidianSync**.\n\n## ⚠️ Important Notes\n* **Keep Private**: This repository contains your personal notes. Do not make this repository public.\n* **Automated Sync**: Files are synced automatically by the ObsidianSync plugin. Avoid manual modifications to the files directly on GitHub to prevent sync conflicts.\n`,
       );
     }
   }

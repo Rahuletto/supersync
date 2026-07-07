@@ -1,11 +1,11 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import { Settings, DEFAULT_SETTINGS } from "../types";
-import type PrivateGithubSyncPlugin from "../../main";
+import type ObsidianSyncPlugin from "../../main";
 
-export class GitSyncSettingTab extends PluginSettingTab {
-  plugin: PrivateGithubSyncPlugin;
+export class ObsidianSyncSettingTab extends PluginSettingTab {
+  plugin: ObsidianSyncPlugin;
 
-  constructor(app: App, plugin: PrivateGithubSyncPlugin) {
+  constructor(app: App, plugin: ObsidianSyncPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }

@@ -188,7 +188,7 @@ export class GithubClient {
           name: settings.repo,
           private: true,
           auto_init: true,
-          description: "GitSync private Obsidian vault synchronization repository."
+          description: "ObsidianSync private Obsidian vault synchronization repository."
         },
         false,
       );

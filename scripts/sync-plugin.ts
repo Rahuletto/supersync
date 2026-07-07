@@ -8,7 +8,7 @@ if (!vaultPath) {
   process.exit(1);
 }
 
-const destDir = join(vaultPath, ".obsidian", "plugins", "git-sync");
+const destDir = join(vaultPath, ".obsidian", "plugins", "obsidiansync");
 
 try {
   console.log("Building plugin...");

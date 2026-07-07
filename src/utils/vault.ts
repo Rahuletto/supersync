@@ -82,7 +82,7 @@ export class VaultHelper {
   }
 
   async getMetadataMapping(): Promise<Record<string, string>> {
-    const path = ".gitsync-metadata.json";
+    const path = ".obsidiansync-metadata.json";
     const exists = await this.app.vault.adapter.exists(path);
     if (!exists) return {};
     try {
@@ -94,7 +94,7 @@ export class VaultHelper {
   }
 
   async saveMetadataMapping(mapping: Record<string, string>) {
-    const path = ".gitsync-metadata.json";
+    const path = ".obsidiansync-metadata.json";
     const content = JSON.stringify(mapping, null, 2);
     this.pluginWrites.add(path);
     await this.app.vault.adapter.write(path, content);
@@ -107,7 +107,7 @@ export class VaultHelper {
     
     let id = frontmatter?.id || mapping[file.path];
     if (!id) {
-      id = "gitsync-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7);
+      id = "obsidiansync-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7);
     }
     
     if (mapping[file.path] !== id) {
@@ -224,7 +224,7 @@ export class VaultHelper {
     }
 
     // Manually add the metadata file to the manifest so it gets synced!
-    const metadataPath = ".gitsync-metadata.json";
+    const metadataPath = ".obsidiansync-metadata.json";
     const exists = await this.app.vault.adapter.exists(metadataPath);
     if (exists) {
       const content = await this.app.vault.adapter.read(metadataPath);
