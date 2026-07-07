@@ -7,9 +7,9 @@
     "sync-plugin": "bun scripts/sync-plugin.ts"
   },
   "dependencies": {
-    "esbuild": "latest",
-    "obsidian": "latest",
-    "typescript": "latest"
+    "esbuild": "^0.28.1",
+    "obsidian": "^1.13.1",
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
     "@types/node": "^26.1.0",

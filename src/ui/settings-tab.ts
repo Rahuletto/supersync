@@ -13,7 +13,7 @@ export class SuperSyncSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    new Setting(containerEl).setName("Sync Settings").setHeading();
+    new Setting(containerEl).setName("Sync Configuration").setHeading();
     const isAuthorized = Boolean(this.plugin.settings.token);
 
     if (isAuthorized) {
