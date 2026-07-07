@@ -107,11 +107,23 @@ export default class SuperSyncPlugin extends Plugin {
       id: "sync-now",
       name: "Sync now",
       callback: () => void this.sync("manual"),
+      hotkeys: [
+        {
+          modifiers: ["Mod"],
+          key: "s",
+        },
+      ],
     });
     this.addCommand({
       id: "force-sync",
       name: "Force sync / fetch updates",
       callback: () => void this.sync("force"),
+      hotkeys: [
+        {
+          modifiers: ["Mod"],
+          key: "r",
+        },
+      ],
     });
     this.addCommand({
       id: "open-sync-status",
