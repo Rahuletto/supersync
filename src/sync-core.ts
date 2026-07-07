@@ -46,6 +46,8 @@ export function planChanges(
     const localChanged = localSha !== baseLocal;
     const remoteChanged = remoteSha !== baseRemote;
 
+    if (localSha && remoteSha && localSha === remoteSha) continue;
+
     if (localSha && remoteSha && !base && localSha !== remoteSha)
       changes.push({ type: "conflict", path, remoteSha, kind: "both_added" });
     else if (localSha && !remoteSha && !base) changes.push({ type: "upload", path });

@@ -466,12 +466,18 @@ export default class SuperSyncPlugin extends Plugin {
       ...Object.keys(remote),
     ])) {
       if (this.vaultHelper.isIgnored(path)) continue;
-      if (local[path] && remote[path])
+      if (local[path] && remote[path]) {
+        // Use the remote SHA (the version actually synced) as the base for both
+        // local and remote in the manifest. If the local file was modified
+        // concurrently during sync, its current localSha will differ from the remoteSha,
+        // correctly prompting an upload in the next sync.
+        const remoteSha = remote[path].sha;
         next[path] = {
-          sha: local[path].sha,
-          remoteSha: remote[path].sha,
-          size: local[path].size,
+          sha: remoteSha,
+          remoteSha: remoteSha,
+          size: remote[path].size ?? local[path].size,
         };
+      }
     }
     return next;
   }
