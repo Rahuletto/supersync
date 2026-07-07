@@ -48,9 +48,11 @@ export class ConflictModal extends Modal {
 
     for (const conflict of this.conflicts) {
       const rowContainer = contentEl.createDiv();
-      rowContainer.style.borderBottom = "1px solid var(--background-modifier-border-hover)";
-      rowContainer.style.paddingBottom = "15px";
-      rowContainer.style.marginBottom = "15px";
+      rowContainer.setCssStyles({
+        borderBottom: "1px solid var(--background-modifier-border-hover)",
+        paddingBottom: "15px",
+        marginBottom: "15px"
+      });
 
       const settingRow = new Setting(rowContainer)
         .setName(conflict.path)
@@ -68,30 +70,32 @@ export class ConflictModal extends Modal {
 
       if (!isBinaryFile(conflict.path)) {
         const diffContainer = rowContainer.createDiv();
-        diffContainer.style.display = "none";
-        diffContainer.style.marginTop = "10px";
-        diffContainer.style.padding = "12px";
-        diffContainer.style.background = "var(--background-secondary)";
-        diffContainer.style.border = "1px solid var(--border-color)";
-        diffContainer.style.borderRadius = "6px";
-        diffContainer.style.maxHeight = "250px";
-        diffContainer.style.overflowY = "auto";
-        diffContainer.style.fontFamily = "var(--font-monospace)";
-        diffContainer.style.fontSize = "0.85em";
-        diffContainer.style.whiteSpace = "pre-wrap";
+        diffContainer.setCssStyles({
+          display: "none",
+          marginTop: "10px",
+          padding: "12px",
+          background: "var(--background-secondary)",
+          border: "1px solid var(--border-color)",
+          borderRadius: "6px",
+          maxHeight: "250px",
+          overflowY: "auto",
+          fontFamily: "var(--font-monospace)",
+          fontSize: "0.85em",
+          whiteSpace: "pre-wrap"
+        });
 
         settingRow.addButton((button) =>
           button.setButtonText("Show Diff").onClick(async () => {
             const isShowing = diffContainer.style.display !== "none";
             if (isShowing) {
-              diffContainer.style.display = "none";
+              diffContainer.setCssStyles({ display: "none" });
               button.setButtonText("Show Diff");
             } else {
               button.setButtonText("Loading Diff...");
               button.setDisabled(true);
               try {
                 await this.renderDiff(diffContainer, conflict);
-                diffContainer.style.display = "block";
+                diffContainer.setCssStyles({ display: "block" });
                 button.setButtonText("Hide Diff");
               } catch (e) {
                 new Notice("Failed to load diff: " + String(e));
@@ -161,27 +165,37 @@ export class ConflictModal extends Modal {
     if (cleanLocal === cleanRemote) {
       const msg = container.createDiv();
       msg.setText("File contents are identical (conflict is metadata-only).");
-      msg.style.color = "var(--text-muted)";
-      msg.style.fontStyle = "italic";
+      msg.setCssStyles({
+        color: "var(--text-muted)",
+        fontStyle: "italic"
+      });
       return;
     }
 
     const diffLines = generateDiff(cleanLocal, cleanRemote);
     for (const line of diffLines) {
       const lineEl = container.createDiv();
-      lineEl.style.padding = "2px 4px";
-      lineEl.style.borderRadius = "2px";
+      lineEl.setCssStyles({
+        padding: "2px 4px",
+        borderRadius: "2px"
+      });
 
       if (line.type === "added") {
-        lineEl.style.background = "rgba(76, 175, 80, 0.12)";
-        lineEl.style.color = "#4caf50";
+        lineEl.setCssStyles({
+          background: "rgba(76, 175, 80, 0.12)",
+          color: "#4caf50"
+        });
         lineEl.setText(`+ ${line.text}`);
       } else if (line.type === "removed") {
-        lineEl.style.background = "rgba(244, 67, 54, 0.12)";
-        lineEl.style.color = "#f44336";
+        lineEl.setCssStyles({
+          background: "rgba(244, 67, 54, 0.12)",
+          color: "#f44336"
+        });
         lineEl.setText(`- ${line.text}`);
       } else {
-        lineEl.style.color = "var(--text-muted)";
+        lineEl.setCssStyles({
+          color: "var(--text-muted)"
+        });
         lineEl.setText(`  ${line.text}`);
       }
     }

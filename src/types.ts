@@ -63,11 +63,5 @@ export const DEFAULT_SETTINGS: Settings = {
   intervalMinutes: 5,
   syncObsidianConfig: true,
   syncCommunityPlugins: false,
-  ignorePatterns: [
-    ".git/**",
-    ".trash/**",
-    ".obsidian/workspace*.json",
-    `.obsidian/plugins/${PLUGIN_ID}/data.json`,
-    ".DS_Store",
-  ].join("\n"),
+  ignorePatterns: "",
 };

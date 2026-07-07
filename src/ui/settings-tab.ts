@@ -13,7 +13,7 @@ export class SuperSyncSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    new Setting(containerEl).setName("SuperSync").setHeading();
+    new Setting(containerEl).setName("Sync Settings").setHeading();
     const isAuthorized = Boolean(this.plugin.settings.token);
 
     if (isAuthorized) {
@@ -64,7 +64,7 @@ export class SuperSyncSettingTab extends PluginSettingTab {
         }),
     );
     this.toggle(
-      "Sync .obsidian config",
+      `Sync configuration folder (${this.app.vault.configDir})`,
       "Includes settings, themes, snippets, canvas metadata, etc. Workspace files still ignored by default.",
       "syncObsidianConfig",
     );

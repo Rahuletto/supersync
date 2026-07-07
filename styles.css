@@ -23,9 +23,9 @@
 }
 
 /* Hide SuperSync internal metadata properties in Obsidian's UI */
-.metadata-property[data-property-key="id"],
-.metadata-property[data-property-key="title"] {
-  display: none !important;
+.workspace .metadata-properties .metadata-property[data-property-key="id"],
+.workspace .metadata-properties .metadata-property[data-property-key="title"] {
+  display: none;
 }
 
 /* Ignore patterns setting layout */
@@ -39,3 +39,19 @@
   height: 120px;
   font-family: var(--font-monospace);
 }
+
+/* Spinner animation and style */
+@keyframes supersync-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.supersync-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--text-muted);
+  border-top-color: transparent;
+  animation: supersync-spin 1s linear infinite;
+}
+

@@ -38,26 +38,30 @@ export class DeviceFlowModal extends Modal {
 
     // Code container
     const codeContainer = contentEl.createDiv({ cls: "super-sync-code-container" });
-    codeContainer.style.display = "flex";
-    codeContainer.style.alignItems = "center";
-    codeContainer.style.gap = "10px";
-    codeContainer.style.margin = "20px 0";
+    codeContainer.setCssStyles({
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      margin: "20px 0"
+    });
 
     const codeEl = codeContainer.createEl("code", { text: this.device.user_code });
-    codeEl.style.fontSize = "28px";
-    codeEl.style.fontWeight = "bold";
-    codeEl.style.padding = "8px 16px";
-    codeEl.style.background = "var(--background-secondary)";
-    codeEl.style.border = "1px solid var(--border-color)";
-    codeEl.style.borderRadius = "6px";
-    codeEl.style.letterSpacing = "1px";
+    codeEl.setCssStyles({
+      fontSize: "28px",
+      fontWeight: "bold",
+      padding: "8px 16px",
+      background: "var(--background-secondary)",
+      border: "1px solid var(--border-color)",
+      borderRadius: "6px",
+      letterSpacing: "1px"
+    });
 
     const copyBtn = codeContainer.createEl("button", { text: "Copy" });
     copyBtn.onClickEvent(async () => {
       await navigator.clipboard.writeText(this.device.user_code);
       copyBtn.setText("Copied!");
       new Notice("Code copied to clipboard.");
-      setTimeout(() => {
+      window.setTimeout(() => {
         if (!this.isClosed) copyBtn.setText("Copy");
       }, 2000);
     });
@@ -82,45 +86,41 @@ export class DeviceFlowModal extends Modal {
 
     // Status area in bottom
     const statusContainer = contentEl.createDiv();
-    statusContainer.style.display = "flex";
-    statusContainer.style.justifyContent = "space-between";
-    statusContainer.style.alignItems = "center";
-    statusContainer.style.marginTop = "15px";
+    statusContainer.setCssStyles({
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginTop: "15px"
+    });
 
     const leftSide = statusContainer.createDiv();
-    leftSide.style.display = "flex";
-    leftSide.style.alignItems = "center";
-    leftSide.style.gap = "8px";
+    leftSide.setCssStyles({
+      display: "flex",
+      alignItems: "center",
+      gap: "8px"
+    });
 
     // CSS Spinner
-    this.spinnerEl = leftSide.createDiv();
-    this.spinnerEl.style.width = "14px";
-    this.spinnerEl.style.height = "14px";
-    this.spinnerEl.style.borderRadius = "50%";
-    this.spinnerEl.style.border = "2px solid var(--text-muted)";
-    this.spinnerEl.style.borderTopColor = "transparent";
-    this.spinnerEl.style.animation = "spin 1s linear infinite";
-    
-    // Inject keyframes style if not exists
-    if (!document.getElementById("super-sync-spinner-style")) {
-      const style = document.createElement("style");
-      style.id = "super-sync-spinner-style";
-      style.textContent = "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }";
-      document.head.appendChild(style);
-    }
+    this.spinnerEl = leftSide.createDiv({ cls: "supersync-spinner" });
 
     this.statusEl = leftSide.createSpan({ text: "Waiting for code entry... " });
-    this.statusEl.style.color = "var(--text-muted)";
-    this.statusEl.style.fontSize = "0.9em";
+    this.statusEl.setCssStyles({
+      color: "var(--text-muted)",
+      fontSize: "0.9em"
+    });
 
     this.countdownEl = leftSide.createSpan({ text: `(checking in ${this.countdown}s)` });
-    this.countdownEl.style.color = "var(--text-muted)";
-    this.countdownEl.style.fontSize = "0.9em";
+    this.countdownEl.setCssStyles({
+      color: "var(--text-muted)",
+      fontSize: "0.9em"
+    });
 
     // "Check now" minimal button
     this.checkNowBtnEl = statusContainer.createEl("button", { text: "Check now" }) as HTMLButtonElement;
-    this.checkNowBtnEl.style.padding = "4px 8px";
-    this.checkNowBtnEl.style.fontSize = "0.85em";
+    this.checkNowBtnEl.setCssStyles({
+      padding: "4px 8px",
+      fontSize: "0.85em"
+    });
     this.checkNowBtnEl.onClickEvent(() => {
       void this.triggerImmediateCheck();
     });
@@ -132,7 +132,7 @@ export class DeviceFlowModal extends Modal {
   onClose() {
     this.isClosed = true;
     if (this.timer) {
-      clearTimeout(this.timer);
+      window.clearTimeout(this.timer);
       this.timer = null;
     }
   }
@@ -149,18 +149,18 @@ export class DeviceFlowModal extends Modal {
       }
 
       if (!this.isClosed) {
-        this.timer = setTimeout(tick, 1000);
+        this.timer = window.setTimeout(tick, 1000);
       }
     };
 
-    this.timer = setTimeout(tick, 1000);
+    this.timer = window.setTimeout(tick, 1000);
   }
 
   private async triggerImmediateCheck() {
     if (this.isChecking || this.isClosed) return;
     if (this.checkNowBtnEl) {
       this.checkNowBtnEl.disabled = true;
-      setTimeout(() => {
+      window.setTimeout(() => {
         if (!this.isClosed && this.checkNowBtnEl) {
           this.checkNowBtnEl.disabled = false;
         }
@@ -174,14 +174,14 @@ export class DeviceFlowModal extends Modal {
   private async checkToken() {
     if (this.isChecking || this.isClosed) return;
     this.isChecking = true;
-    this.spinnerEl.style.borderTopColor = "var(--text-accent)";
+    this.spinnerEl.setCssStyles({ borderTopColor: "var(--text-accent)" });
 
     try {
       const result = await this.githubClient.checkDeviceToken(this.clientId, this.device.device_code);
 
       if (result.access_token) {
         this.isClosed = true;
-        if (this.timer) clearTimeout(this.timer);
+        if (this.timer) window.clearTimeout(this.timer);
         this.statusEl.setText("Authorized! Setting up...");
         this.countdownEl.setText("");
         await this.onSuccess(result.access_token);
@@ -201,7 +201,7 @@ export class DeviceFlowModal extends Modal {
         new Notice("GitHub requested to slow down polling. Cooldown interval increased by 5s.", 3000);
       } else {
         this.isClosed = true;
-        if (this.timer) clearTimeout(this.timer);
+        if (this.timer) window.clearTimeout(this.timer);
         const errMsg = result.error_description || result.error || "GitHub sign-in failed.";
         this.statusEl.setText(`Error: ${errMsg}`);
         this.countdownEl.setText("");
@@ -212,7 +212,7 @@ export class DeviceFlowModal extends Modal {
     } finally {
       this.isChecking = false;
       if (!this.isClosed) {
-        this.spinnerEl.style.borderTopColor = "transparent";
+        this.spinnerEl.setCssStyles({ borderTopColor: "transparent" });
       }
     }
   }

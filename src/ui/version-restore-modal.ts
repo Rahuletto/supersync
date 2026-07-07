@@ -25,16 +25,18 @@ export class RestoreConfirmModal extends Modal {
 
     // Commit Details Box
     const commitBox = contentEl.createDiv();
-    commitBox.style.background = "var(--background-secondary)";
-    commitBox.style.border = "1px solid var(--border-color)";
-    commitBox.style.borderRadius = "6px";
-    commitBox.style.padding = "10px 14px";
-    commitBox.style.marginBottom = "15px";
-    commitBox.style.fontSize = "0.9em";
+    commitBox.setCssStyles({
+      background: "var(--background-secondary)",
+      border: "1px solid var(--border-color)",
+      borderRadius: "6px",
+      padding: "10px 14px",
+      marginBottom: "15px",
+      fontSize: "0.9em"
+    });
 
     const addCommitRow = (parent: HTMLElement, label: string, val: string) => {
       const row = parent.createDiv();
-      row.style.margin = "4px 0";
+      row.setCssStyles({ margin: "4px 0" });
       row.createEl("strong", { text: label + ": " });
       row.createSpan({ text: val });
     };
@@ -44,16 +46,18 @@ export class RestoreConfirmModal extends Modal {
 
     // Diff Loading Box
     const diffContainer = contentEl.createDiv();
-    diffContainer.style.padding = "12px";
-    diffContainer.style.background = "var(--background-secondary)";
-    diffContainer.style.border = "1px solid var(--border-color)";
-    diffContainer.style.borderRadius = "6px";
-    diffContainer.style.maxHeight = "250px";
-    diffContainer.style.overflowY = "auto";
-    diffContainer.style.fontFamily = "var(--font-monospace)";
-    diffContainer.style.fontSize = "0.85em";
-    diffContainer.style.whiteSpace = "pre-wrap";
-    diffContainer.style.marginBottom = "15px";
+    diffContainer.setCssStyles({
+      padding: "12px",
+      background: "var(--background-secondary)",
+      border: "1px solid var(--border-color)",
+      borderRadius: "6px",
+      maxHeight: "250px",
+      overflowY: "auto",
+      fontFamily: "var(--font-monospace)",
+      fontSize: "0.85em",
+      whiteSpace: "pre-wrap",
+      marginBottom: "15px"
+    });
     diffContainer.setText("Loading diff...");
 
     // Action buttons
@@ -102,27 +106,37 @@ export class RestoreConfirmModal extends Modal {
     if (cleanLocal === cleanRemote) {
       const msg = container.createDiv();
       msg.setText("File contents are identical.");
-      msg.style.color = "var(--text-muted)";
-      msg.style.fontStyle = "italic";
+      msg.setCssStyles({
+        color: "var(--text-muted)",
+        fontStyle: "italic"
+      });
       return;
     }
 
     const diffLines = generateDiff(cleanLocal, cleanRemote);
     for (const line of diffLines) {
       const lineEl = container.createDiv();
-      lineEl.style.padding = "2px 4px";
-      lineEl.style.borderRadius = "2px";
+      lineEl.setCssStyles({
+        padding: "2px 4px",
+        borderRadius: "2px"
+      });
 
       if (line.type === "added") {
-        lineEl.style.background = "rgba(76, 175, 80, 0.12)";
-        lineEl.style.color = "#4caf50";
+        lineEl.setCssStyles({
+          background: "rgba(76, 175, 80, 0.12)",
+          color: "#4caf50"
+        });
         lineEl.setText(`+ ${line.text}`);
       } else if (line.type === "removed") {
-        lineEl.style.background = "rgba(244, 67, 54, 0.12)";
-        lineEl.style.color = "#f44336";
+        lineEl.setCssStyles({
+          background: "rgba(244, 67, 54, 0.12)",
+          color: "#f44336"
+        });
         lineEl.setText(`- ${line.text}`);
       } else {
-        lineEl.style.color = "var(--text-muted)";
+        lineEl.setCssStyles({
+          color: "var(--text-muted)"
+        });
         lineEl.setText(`  ${line.text}`);
       }
     }

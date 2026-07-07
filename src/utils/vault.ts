@@ -21,12 +21,13 @@ export class VaultHelper {
   isIgnored(path: string): boolean {
     path = normalizePath(path);
     const settings = this.getSettings();
-    if (!settings.syncObsidianConfig && path.startsWith(".obsidian/"))
+    const configDir = this.app.vault.configDir;
+    if (!settings.syncObsidianConfig && path.startsWith(configDir + "/"))
       return true;
     if (
       !settings.syncCommunityPlugins &&
-      path.startsWith(".obsidian/plugins/") &&
-      !path.startsWith(`.obsidian/plugins/${PLUGIN_ID}/`)
+      path.startsWith(configDir + "/plugins/") &&
+      !path.startsWith(`${configDir}/plugins/${PLUGIN_ID}/`)
     )
       return true;
     return this.ignoreRules().some((pattern) => matchesPattern(path, pattern));
@@ -177,7 +178,7 @@ export class VaultHelper {
     const paths = this.app.vault.getFiles().map((f) => f.path);
     const settings = this.getSettings();
     if (settings.syncObsidianConfig) {
-      await this.scanFolderRecursive(".obsidian", paths);
+      await this.scanFolderRecursive(this.app.vault.configDir, paths);
     }
     return paths.filter((p) => !this.isIgnored(p));
   }
@@ -324,9 +325,10 @@ export class VaultHelper {
     this.pluginWrites.add(path);
     await this.ensureDirectoryExists(path);
     const existing = this.app.vault.getAbstractFileByPath(path);
+    const configDir = this.app.vault.configDir;
     if (existing instanceof TFile) {
       await this.app.vault.modifyBinary(existing, bytes);
-    } else if (path.startsWith(".obsidian/")) {
+    } else if (path.startsWith(configDir + "/")) {
       await this.app.vault.adapter.writeBinary(path, bytes);
     } else {
       await this.app.vault.createBinary(path, bytes);

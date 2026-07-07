@@ -70,10 +70,21 @@ export default class SuperSyncPlugin extends Plugin {
     };
 
     const data = await this.loadData();
+    const loadedSettings = data?.settings ?? data ?? {};
+    if (loadedSettings.ignorePatterns === undefined || loadedSettings.ignorePatterns === "") {
+      loadedSettings.ignorePatterns = [
+        ".git/**",
+        ".trash/**",
+        `${this.app.vault.configDir}/workspace*.json`,
+        `${this.app.vault.configDir}/plugins/supersync/data.json`,
+        ".DS_Store",
+      ].join("\n");
+    }
+
     this.settings = Object.assign(
       {},
       DEFAULT_SETTINGS,
-      data?.settings ?? data ?? {},
+      loadedSettings,
     );
     this.syncManifest = data?.manifest ?? {};
     this.syncLog = data?.syncLog ?? [];
@@ -96,23 +107,11 @@ export default class SuperSyncPlugin extends Plugin {
       id: "sync-now",
       name: "Sync now",
       callback: () => void this.sync("manual"),
-      hotkeys: [
-        {
-          modifiers: ["Mod"],
-          key: "s",
-        },
-      ],
     });
     this.addCommand({
       id: "force-sync",
       name: "Force sync / fetch updates",
       callback: () => void this.sync("force"),
-      hotkeys: [
-        {
-          modifiers: ["Mod"],
-          key: "r",
-        },
-      ],
     });
     this.addCommand({
       id: "open-sync-status",
