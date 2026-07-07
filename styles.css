@@ -1,0 +1,29 @@
+.private-github-sync-status {
+  margin-top: 0.75rem;
+  opacity: 0.8;
+}
+.private-github-sync-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+.private-github-sync-row {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+.private-github-sync-label {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+.private-github-sync-value {
+  overflow-wrap: anywhere;
+}
+
+/* Hide GitSync internal metadata properties in Obsidian's UI */
+.metadata-property[data-property-key="id"],
+.metadata-property[data-property-key="title"] {
+  display: none !important;
+}
