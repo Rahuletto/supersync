@@ -13,7 +13,7 @@ export class SuperSyncSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl("h2", { text: "SuperSync" });
+    new Setting(containerEl).setName("SuperSync").setHeading();
     const isAuthorized = Boolean(this.plugin.settings.token);
 
     if (isAuthorized) {
@@ -78,15 +78,11 @@ export class SuperSyncSettingTab extends PluginSettingTab {
       .setDesc(
         "One glob-ish pattern per line. Supports exact paths, /** folder prefixes, * wildcards.",
       );
-    ignoreSetting.settingEl.style.flexDirection = "column";
-    ignoreSetting.settingEl.style.alignItems = "stretch";
-    ignoreSetting.settingEl.style.gap = "8px";
+    ignoreSetting.settingEl.addClass("supersync-ignore-setting");
 
     ignoreSetting.addTextArea((text) => {
       text.inputEl.rows = 6;
-      text.inputEl.style.width = "100%";
-      text.inputEl.style.height = "120px";
-      text.inputEl.style.fontFamily = "monospace";
+      text.inputEl.addClass("supersync-ignore-textarea");
       text.setPlaceholder(".git/**\n.trash/**\n.DS_Store");
       text
         .setValue(this.plugin.settings.ignorePatterns)

@@ -27,3 +27,15 @@
 .metadata-property[data-property-key="title"] {
   display: none !important;
 }
+
+/* Ignore patterns setting layout */
+.supersync-ignore-setting {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.supersync-ignore-textarea {
+  width: 100%;
+  height: 120px;
+  font-family: var(--font-monospace);
+}

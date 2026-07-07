@@ -1,4 +1,4 @@
-import { App, Notice, TFile, TAbstractFile, normalizePath, parseYaml, stringifyYaml } from "obsidian";
+import { App, Notice, TFile, normalizePath, stringifyYaml } from "obsidian";
 import { Settings } from "../types";
 import { Manifest } from "../sync-core";
 import { gitBlobSha, matchesPattern, formatBytes } from "./helpers";

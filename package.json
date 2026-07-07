@@ -13,6 +13,9 @@
     "typescript": "latest"
   },
   "devDependencies": {
-    "@types/node": "^26.1.0"
+    "@types/node": "^26.1.0",
+    "@typescript-eslint/parser": "^8.63.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-obsidian": "^2.32.0"
   }
 }

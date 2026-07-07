@@ -18,7 +18,6 @@ import {
   DEFAULT_SETTINGS,
 } from "./src/types";
 import {
-  PLUGIN_ID,
   VIEW_TYPE_SYNC_STATUS,
 } from "./src/constants";
 import { VaultHelper } from "./src/utils/vault";

@@ -1,5 +1,4 @@
 import { PLUGIN_ID } from "./constants";
-import { Change } from "./sync-core";
 
 export interface Settings {
   token: string;
