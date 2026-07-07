@@ -173,15 +173,45 @@ export class VaultHelper {
     return this.ensureFileMetadata(file, mapping);
   }
 
+  async listAllSyncablePaths(): Promise<string[]> {
+    const paths = this.app.vault.getFiles().map((f) => f.path);
+    const settings = this.getSettings();
+    if (settings.syncObsidianConfig) {
+      await this.scanFolderRecursive(".obsidian", paths);
+    }
+    return paths.filter((p) => !this.isIgnored(p));
+  }
+
+  private async scanFolderRecursive(folderPath: string, paths: string[]): Promise<void> {
+    try {
+      const exists = await this.app.vault.adapter.exists(folderPath);
+      if (!exists) return;
+      
+      const list = await this.app.vault.adapter.list(folderPath);
+      for (const file of list.files) {
+        paths.push(file);
+      }
+      for (const folder of list.folders) {
+        if (!this.isIgnored(folder)) {
+          await this.scanFolderRecursive(folder, paths);
+        }
+      }
+    } catch (e) {
+      console.error(`Failed to scan folder ${folderPath}:`, e);
+    }
+  }
+
   async localManifest(): Promise<Manifest> {
     const result: Manifest = {};
     const mapping = await this.getMetadataMapping();
     let needsSave = false;
 
     // Detect offline renames by matching file hashes
-    const currentFiles = this.app.vault.getFiles().filter(f => !this.isIgnored(f.path));
-    const missingPaths = Object.keys(mapping).filter(p => !this.app.vault.getAbstractFileByPath(p));
-    const untrackedFiles = currentFiles.filter(f => !mapping[f.path]);
+    const syncablePaths = await this.listAllSyncablePaths();
+    const missingPaths = Object.keys(mapping).filter(p => !syncablePaths.includes(p));
+    const untrackedFiles = syncablePaths
+      .map(p => this.app.vault.getAbstractFileByPath(p))
+      .filter((f): f is TFile => f instanceof TFile && f.extension === "md" && !mapping[f.path]);
     
     if (missingPaths.length > 0 && untrackedFiles.length > 0) {
       for (const file of untrackedFiles) {
@@ -203,18 +233,34 @@ export class VaultHelper {
       needsSave = true;
     }
 
-    for (const file of this.app.vault.getFiles()) {
-      if (this.isIgnored(file.path)) continue;
-      const oldMappingVal = mapping[file.path];
-      const { id, bytes } = await this.getFileMetadataOrDefaults(file, mapping);
-      if (mapping[file.path] !== oldMappingVal) {
-        needsSave = true;
+    for (const path of syncablePaths) {
+      const file = this.app.vault.getAbstractFileByPath(path);
+      let sha = "";
+      let size = 0;
+      let id = path;
+
+      if (file instanceof TFile) {
+        const oldMappingVal = mapping[file.path];
+        const res = await this.getFileMetadataOrDefaults(file, mapping);
+        id = res.id;
+        sha = await gitBlobSha(res.bytes);
+        size = res.bytes.byteLength;
+        if (mapping[file.path] !== oldMappingVal) {
+          needsSave = true;
+        }
+      } else {
+        // Hidden file or config file (read directly from adapter)
+        const bytes = await this.app.vault.adapter.readBinary(path);
+        sha = await gitBlobSha(bytes);
+        size = bytes.byteLength;
+        id = path;
       }
-      this.assertSyncableSize(file.path, bytes.byteLength);
-      result[file.path] = {
-        sha: await gitBlobSha(bytes),
-        remoteSha: this.getSyncManifest()[file.path]?.remoteSha ?? null,
-        size: bytes.byteLength,
+
+      this.assertSyncableSize(path, size);
+      result[path] = {
+        sha,
+        remoteSha: this.getSyncManifest()[path]?.remoteSha ?? null,
+        size,
         id,
       };
     }
@@ -250,14 +296,23 @@ export class VaultHelper {
       if (!part) continue;
       currentPath = currentPath ? `${currentPath}/${part}` : part;
       const normalized = normalizePath(currentPath);
-      const exist = this.app.vault.getAbstractFileByPath(normalized);
-      if (!exist) {
-        try {
-          await this.app.vault.createFolder(normalized);
-        } catch (error) {
-          const msg = error instanceof Error ? error.message : String(error);
-          if (!msg.toLowerCase().includes("already exists")) {
-            throw error;
+      const isHidden = normalized.startsWith(".");
+      
+      if (isHidden) {
+        const exists = await this.app.vault.adapter.exists(normalized);
+        if (!exists) {
+          await this.app.vault.adapter.mkdir(normalized);
+        }
+      } else {
+        const exist = this.app.vault.getAbstractFileByPath(normalized);
+        if (!exist) {
+          try {
+            await this.app.vault.createFolder(normalized);
+          } catch (error) {
+            const msg = error instanceof Error ? error.message : String(error);
+            if (!msg.toLowerCase().includes("already exists")) {
+              throw error;
+            }
           }
         }
       }
@@ -269,9 +324,13 @@ export class VaultHelper {
     this.pluginWrites.add(path);
     await this.ensureDirectoryExists(path);
     const existing = this.app.vault.getAbstractFileByPath(path);
-    if (existing instanceof TFile)
+    if (existing instanceof TFile) {
       await this.app.vault.modifyBinary(existing, bytes);
-    else await this.app.vault.createBinary(path, bytes);
+    } else if (path.startsWith(".obsidian/")) {
+      await this.app.vault.adapter.writeBinary(path, bytes);
+    } else {
+      await this.app.vault.createBinary(path, bytes);
+    }
   }
 
   async backupLocalFile(path: string) {
@@ -289,6 +348,12 @@ export class VaultHelper {
     if (file) {
       this.pluginWrites.add(path);
       await this.app.vault.delete(file, true);
+    } else {
+      const exists = await this.app.vault.adapter.exists(path);
+      if (exists) {
+        this.pluginWrites.add(path);
+        await this.app.vault.adapter.remove(path);
+      }
     }
   }
 

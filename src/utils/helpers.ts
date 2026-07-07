@@ -130,3 +130,24 @@ export function stripFrontmatter(text: string): string {
   }
   return text;
 }
+
+export function isBinaryFile(path: string): boolean {
+  const BINARY_EXTENSIONS = new Set([
+    "png", "jpg", "jpeg", "gif", "webp", "svg", "ico", "bmp", "tiff",
+    "pdf",
+    "zip", "tar", "gz", "rar", "7z",
+    "mp3", "wav", "m4a", "ogg", "flac",
+    "mp4", "mov", "avi", "mkv", "webm",
+    "doc", "docx", "xls", "xlsx", "ppt", "pptx",
+    "woff", "woff2", "eot", "ttf", "otf",
+    "exe", "dll", "so", "dylib", "bin"
+  ]);
+  const parts = path.split("/");
+  const filename = parts[parts.length - 1];
+  if (!filename.includes(".")) {
+    // Files without extension like README, LICENSE, etc. are text
+    return false;
+  }
+  const ext = filename.split(".").pop()?.toLowerCase();
+  return ext ? BINARY_EXTENSIONS.has(ext) : false;
+}

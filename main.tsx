@@ -46,6 +46,7 @@ export default class SuperSyncPlugin extends Plugin {
   private lastSyncAt = "";
   private lastError = "";
   private lastChangeCount = 0;
+  private lastSyncTime = Date.now();
   private syncAfterChange = debounce(
     () => void this.sync("file change"),
     3000,
@@ -104,6 +105,17 @@ export default class SuperSyncPlugin extends Plugin {
       ],
     });
     this.addCommand({
+      id: "force-sync",
+      name: "Force sync / fetch updates",
+      callback: () => void this.sync("force"),
+      hotkeys: [
+        {
+          modifiers: ["Mod"],
+          key: "r",
+        },
+      ],
+    });
+    this.addCommand({
       id: "open-sync-status",
       name: "Open sync status panel",
       callback: () => void this.activateStatusView(),
@@ -147,13 +159,20 @@ export default class SuperSyncPlugin extends Plugin {
         this.onVaultChange(file);
       }),
     );
+    this.lastSyncTime = Date.now();
     this.registerInterval(
       window.setInterval(
         () => {
-          if (this.settings.autoSync && this.settings.intervalMinutes > 0)
-            void this.sync("interval");
+          if (this.settings.autoSync && this.settings.intervalMinutes > 0) {
+            const now = Date.now();
+            const elapsed = now - this.lastSyncTime;
+            const threshold = Math.max(1, this.settings.intervalMinutes) * 60_000;
+            if (elapsed >= threshold) {
+              void this.sync("interval");
+            }
+          }
         },
-        Math.max(1, this.settings.intervalMinutes) * 60_000,
+        10_000, // Check every 10 seconds
       ),
     );
 
@@ -261,6 +280,13 @@ export default class SuperSyncPlugin extends Plugin {
     }
     this.syncing = true;
     this.queued = false;
+    this.lastSyncTime = Date.now();
+
+    if (reason === "force") {
+      this.syncManifest = {};
+      new Notice("Force sync: clearing cache and fetching all updates...");
+    }
+
     const startedAt = new Date().toISOString();
     let changesForLog: Change[] = [];
     let commitSha: string | undefined;

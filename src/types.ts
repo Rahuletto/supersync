@@ -1,3 +1,4 @@
+import { PLUGIN_ID } from "./constants";
 import { Change } from "./sync-core";
 
 export interface Settings {
@@ -67,7 +68,7 @@ export const DEFAULT_SETTINGS: Settings = {
     ".git/**",
     ".trash/**",
     ".obsidian/workspace*.json",
-    ".obsidian/plugins/private-github-sync/data.json",
+    `.obsidian/plugins/${PLUGIN_ID}/data.json`,
     ".DS_Store",
   ].join("\n"),
 };

@@ -12,6 +12,7 @@ export class DeviceFlowModal extends Modal {
   private statusEl!: HTMLSpanElement;
   private countdownEl!: HTMLSpanElement;
   private spinnerEl!: HTMLDivElement;
+  private checkNowBtnEl!: HTMLButtonElement;
 
   constructor(
     app: App,
@@ -117,10 +118,10 @@ export class DeviceFlowModal extends Modal {
     this.countdownEl.style.fontSize = "0.9em";
 
     // "Check now" minimal button
-    const checkNowBtn = statusContainer.createEl("button", { text: "Check now" });
-    checkNowBtn.style.padding = "4px 8px";
-    checkNowBtn.style.fontSize = "0.85em";
-    checkNowBtn.onClickEvent(() => {
+    this.checkNowBtnEl = statusContainer.createEl("button", { text: "Check now" }) as HTMLButtonElement;
+    this.checkNowBtnEl.style.padding = "4px 8px";
+    this.checkNowBtnEl.style.fontSize = "0.85em";
+    this.checkNowBtnEl.onClickEvent(() => {
       void this.triggerImmediateCheck();
     });
 
@@ -157,6 +158,14 @@ export class DeviceFlowModal extends Modal {
 
   private async triggerImmediateCheck() {
     if (this.isChecking || this.isClosed) return;
+    if (this.checkNowBtnEl) {
+      this.checkNowBtnEl.disabled = true;
+      setTimeout(() => {
+        if (!this.isClosed && this.checkNowBtnEl) {
+          this.checkNowBtnEl.disabled = false;
+        }
+      }, 5000);
+    }
     this.countdown = 0;
     this.countdownEl.setText("(checking now...)");
     await this.checkToken();
@@ -187,8 +196,9 @@ export class DeviceFlowModal extends Modal {
       } else if (result.error === "slow_down") {
         this.intervalSeconds += 5;
         this.countdown = this.intervalSeconds;
-        this.statusEl.setText("Waiting for code entry... ");
+        this.statusEl.setText("Slow down requested... ");
         this.countdownEl.setText(`(checking in ${this.countdown}s)`);
+        new Notice("GitHub requested to slow down polling. Cooldown interval increased by 5s.", 3000);
       } else {
         this.isClosed = true;
         if (this.timer) clearTimeout(this.timer);

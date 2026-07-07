@@ -1,7 +1,7 @@
 import { App, Modal, Setting, Notice, TFile } from "obsidian";
 import { Change } from "../sync-core";
 import { ConflictResolution } from "../types";
-import { conflictDescription, generateDiff, stripFrontmatter } from "../utils/helpers";
+import { conflictDescription, generateDiff, stripFrontmatter, isBinaryFile } from "../utils/helpers";
 import type SuperSyncPlugin from "../../main";
 
 
@@ -66,7 +66,7 @@ export class ConflictModal extends Modal {
             ),
         );
 
-      if (conflict.path.endsWith(".md") || conflict.path.endsWith(".txt")) {
+      if (!isBinaryFile(conflict.path)) {
         const diffContainer = rowContainer.createDiv();
         diffContainer.style.display = "none";
         diffContainer.style.marginTop = "10px";
