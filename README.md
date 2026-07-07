@@ -4,11 +4,11 @@
 
 # SuperSync
 
-<p align="center">
-  <a href="obsidian://show-plugin?id=supersync">
-    <img src="https://img.shields.io/badge/Install%20in-Obsidian-purple?style=for-the-badge&logo=obsidian&logoColor=white" alt="Install in Obsidian" />
-  </a>
-</p>
+<div align="center">
+
+[![Install in Obsidian](https://img.shields.io/badge/Install%20in-Obsidian-purple?style=for-the-badge&logo=obsidian&logoColor=white)](obsidian://show-plugin?id=supersync)
+
+</div>
 
 **SuperSync** is a simple, no-fuss Obsidian plugin that backs up and syncs your vault directly to a private GitHub repository. 
 
@@ -32,11 +32,11 @@ Unlike other git plugins, SuperSync doesn't need Git installed on your device or
 ### From the Obsidian Community Store
 If you have Obsidian open, click the badge below to jump straight to the plugin page:
 
-<p align="center">
-  <a href="obsidian://show-plugin?id=supersync">
-    <img src="https://img.shields.io/badge/Install-Open%20in%20Obsidian-purple?style=for-the-badge&logo=obsidian&logoColor=white" alt="Install in Obsidian" />
-  </a>
-</p>
+<div align="center">
+
+[![Install in Obsidian](https://img.shields.io/badge/Install-Open%20in%20Obsidian-purple?style=for-the-badge&logo=obsidian&logoColor=white)](obsidian://show-plugin?id=supersync)
+
+</div>
 
 ### Manual Install
 If you prefer doing it manually:
