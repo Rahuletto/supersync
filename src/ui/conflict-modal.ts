@@ -2,7 +2,7 @@ import { App, Modal, Setting, Notice, TFile } from "obsidian";
 import { Change } from "../sync-core";
 import { ConflictResolution } from "../types";
 import { conflictDescription, generateDiff, stripFrontmatter } from "../utils/helpers";
-import type ObsidianSyncPlugin from "../../main";
+import type SuperSyncPlugin from "../../main";
 
 
 
@@ -13,7 +13,7 @@ export class ConflictModal extends Modal {
 
   constructor(
     app: App,
-    private plugin: ObsidianSyncPlugin,
+    private plugin: SuperSyncPlugin,
     private conflicts: Array<Extract<Change, { type: "conflict" }>>,
   ) {
     super(app);

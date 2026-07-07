@@ -1,11 +1,11 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import { Settings, DEFAULT_SETTINGS } from "../types";
-import type ObsidianSyncPlugin from "../../main";
+import type SuperSyncPlugin from "../../main";
 
-export class ObsidianSyncSettingTab extends PluginSettingTab {
-  plugin: ObsidianSyncPlugin;
+export class SuperSyncSettingTab extends PluginSettingTab {
+  plugin: SuperSyncPlugin;
 
-  constructor(app: App, plugin: ObsidianSyncPlugin) {
+  constructor(app: App, plugin: SuperSyncPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }

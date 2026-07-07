@@ -22,7 +22,7 @@
   overflow-wrap: anywhere;
 }
 
-/* Hide ObsidianSync internal metadata properties in Obsidian's UI */
+/* Hide SuperSync internal metadata properties in Obsidian's UI */
 .metadata-property[data-property-key="id"],
 .metadata-property[data-property-key="title"] {
   display: none !important;

@@ -1,12 +1,12 @@
 import { App, Modal, Setting, Notice, TFile, FuzzySuggestModal } from "obsidian";
 import { VersionEntry } from "../types";
 import { generateDiff, stripFrontmatter } from "../utils/helpers";
-import type ObsidianSyncPlugin from "../../main";
+import type SuperSyncPlugin from "../../main";
 
 export class RestoreConfirmModal extends Modal {
   constructor(
     app: App,
-    private plugin: ObsidianSyncPlugin,
+    private plugin: SuperSyncPlugin,
     private file: TFile,
     private version: VersionEntry,
     private onConfirm: () => Promise<void>,
@@ -132,7 +132,7 @@ export class RestoreConfirmModal extends Modal {
 export class VersionRestoreModal extends FuzzySuggestModal<VersionEntry> {
   constructor(
     app: App,
-    private plugin: ObsidianSyncPlugin,
+    private plugin: SuperSyncPlugin,
     private file: TFile,
     private versions: VersionEntry[],
     private restore: (version: VersionEntry) => Promise<void>,

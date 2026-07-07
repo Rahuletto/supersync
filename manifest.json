@@ -1,6 +1,6 @@
 {
-  "id": "obsidiansync",
-  "name": "ObsidianSync",
+  "id": "supersync",
+  "name": "SuperSync",
   "version": "0.1.0",
   "minAppVersion": "1.5.0",
   "description": "Sync an Obsidian vault with a private GitHub repository using the GitHub API on desktop and mobile.",
