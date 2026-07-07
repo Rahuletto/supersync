@@ -13,14 +13,8 @@ export class SuperSyncSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl("h2", { text: "Private GitHub Sync" });
+    containerEl.createEl("h2", { text: "SuperSync" });
     const isAuthorized = Boolean(this.plugin.settings.token);
-
-    containerEl.createEl("p", {
-      text: isAuthorized
-        ? "Unified mobile + desktop sync through the GitHub API. You are authenticated with GitHub."
-        : "Unified mobile + desktop sync through the GitHub API. Sign in using the button below to authorize the plugin.",
-    });
 
     if (isAuthorized) {
       new Setting(containerEl)
@@ -49,9 +43,7 @@ export class SuperSyncSettingTab extends PluginSettingTab {
             .onClick(() => void this.plugin.startDeviceFlowLogin()),
         );
     }
-    this.text("Repository owner", "GitHub username or organization (optional, defaults to authenticated user)", "owner");
-    this.text("Repository name", "GitHub repository name", "repo");
-    this.text("Branch", "Branch to sync with", "branch");
+    this.repoLink();
     this.text("Root path", "Optional subfolder inside the repo", "rootPath");
     this.toggle(
       "Automatic sync",
@@ -128,6 +120,27 @@ export class SuperSyncSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           });
       });
+  }
+
+  private repoLink() {
+    const { owner, repo } = this.plugin.settings;
+    const url = owner && repo
+      ? `https://github.com/${owner}/${repo}`
+      : null;
+
+    const setting = new Setting(this.containerEl)
+      .setName("Repository");
+
+    if (url) {
+      const a = setting.descEl.createEl("a", {
+        text: `${owner}/${repo}`,
+        href: url,
+      });
+      a.setAttr("target", "_blank");
+      a.setAttr("rel", "noopener noreferrer");
+    } else {
+      setting.setDesc("No repository configured.");
+    }
   }
 
   private toggle<K extends keyof Settings>(name: string, desc: string, key: K) {
