@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "clean": "rm -f main.js && rm -rf dist",
+    "dev": "bun esbuild.config.ts",
+    "build": "bun run clean && bun x tsc -noEmit -skipLibCheck && bun esbuild.config.ts production",
+    "test": "bun run clean && bun x tsc src/sync-core.ts --target ES2020 --module ES2020 --moduleResolution node --outDir dist --skipLibCheck --ignoreConfig --ignoreDeprecations 6.0 && bun test/sync-core.test.mjs",
+    "sync-plugin": "bun scripts/sync-plugin.ts"
+  },
+  "dependencies": {
+    "builtin-modules": "latest",
+    "esbuild": "latest",
+    "obsidian": "latest",
+    "typescript": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0"
+  }
+}
