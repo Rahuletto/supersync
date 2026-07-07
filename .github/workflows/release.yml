@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version (e.g. 1.0.0)"
+        description: "Release version (e.g. 1.0.1)"
         required: true
         type: string
       device_flow_client_id:
@@ -34,41 +34,37 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Validate version matches manifest
+      - name: Bump manifest.json and versions.json
         run: |
-          MANIFEST_VERSION=$(node -p "require('./manifest.json').version")
-          INPUT_VERSION="${{ github.event.inputs.version }}"
-          if [ "$MANIFEST_VERSION" != "$INPUT_VERSION" ]; then
-            echo "❌ manifest.json version ($MANIFEST_VERSION) does not match input version ($INPUT_VERSION)"
-            echo "Update manifest.json first, then run this workflow."
-            exit 1
-          fi
-          echo "✅ Version match: $INPUT_VERSION"
+          VERSION="${{ github.event.inputs.version }}"
+          node -e "
+            const fs = require('fs');
+
+            // Update manifest.json
+            const manifest = JSON.parse(fs.readFileSync('./manifest.json', 'utf8'));
+            manifest.version = '$VERSION';
+            fs.writeFileSync('./manifest.json', JSON.stringify(manifest, null, 2) + '\n');
+            console.log('manifest.json version set to', manifest.version);
+
+            // Update versions.json
+            const vPath = './versions.json';
+            const versions = fs.existsSync(vPath) ? JSON.parse(fs.readFileSync(vPath, 'utf8')) : {};
+            versions['$VERSION'] = manifest.minAppVersion;
+            fs.writeFileSync(vPath, JSON.stringify(versions, null, 2) + '\n');
+            console.log('versions.json updated:', versions);
+          "
 
       - name: Build plugin
         env:
           DEVICE_FLOW_CLIENT_ID: ${{ github.event.inputs.device_flow_client_id || secrets.DEVICE_FLOW_CLIENT_ID }}
         run: bun run build
 
-      - name: Update versions.json
-        run: |
-          VERSION="${{ github.event.inputs.version }}"
-          MIN_APP=$(node -p "require('./manifest.json').minAppVersion")
-          node -e "
-            const fs = require('fs');
-            const path = './versions.json';
-            const versions = fs.existsSync(path) ? JSON.parse(fs.readFileSync(path, 'utf8')) : {};
-            versions['$VERSION'] = '$MIN_APP';
-            fs.writeFileSync(path, JSON.stringify(versions, null, 2) + '\n');
-            console.log('Updated versions.json:', versions);
-          "
-
-      - name: Commit versions.json
+      - name: Commit version bumps
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add versions.json
-          git diff --staged --quiet || git commit -m "chore: bump versions.json for ${{ github.event.inputs.version }}"
+          git add manifest.json versions.json
+          git diff --staged --quiet || git commit -m "chore: release ${{ github.event.inputs.version }}"
           git push
 
       - name: Attest build provenance
