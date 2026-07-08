@@ -126,6 +126,11 @@ export default class SuperSyncPlugin extends Plugin {
       ],
     });
     this.addCommand({
+      id: "pull-changes",
+      name: "Pull changes from GitHub (download only)",
+      callback: () => void this.pull(),
+    });
+    this.addCommand({
       id: "open-sync-status",
       name: "Open sync status panel",
       callback: () => void this.activateStatusView(),
@@ -390,6 +395,77 @@ export default class SuperSyncPlugin extends Plugin {
       if (this.queued) void this.sync("queued");
     }
   }
+
+  async pull() {
+    if (this.syncing) {
+      new Notice("Sync already in progress. Please wait.");
+      return;
+    }
+    this.syncing = true;
+    this.queued = false;
+    this.lastSyncTime = Date.now();
+    this.vaultHelper.clearPluginWrites();
+
+    const startedAt = new Date().toISOString();
+    let changesForLog: Change[] = [];
+    this.setStatus("GitHub Sync: pulling changes...");
+
+    try {
+      this.validateSettings();
+      await this.githubClient.ensureRepositoryReady();
+      // Clear manifest so we compare against the true remote state without
+      // any stale local baseline that might suppress downloads.
+      const savedManifest = this.syncManifest;
+      this.syncManifest = {};
+      const [local, remoteInfo] = await Promise.all([
+        this.vaultHelper.localManifest(),
+        this.githubClient.remoteTree(),
+      ]);
+      this.syncManifest = savedManifest;
+
+      const allChanges = this.planChanges(local, remoteInfo.tree);
+      // Pull = downloads only, never upload local edits
+      const pullChanges = allChanges.filter(
+        (c) => c.type === "download" || c.type === "deleteLocal",
+      );
+
+      changesForLog = pullChanges;
+      if (pullChanges.length === 0) {
+        new Notice("Already up to date — nothing to pull.");
+        this.setStatus("GitHub Sync: synced");
+        this.recordSyncLog(startedAt, "pull", "success", pullChanges);
+        return;
+      }
+
+      await this.applyLocalChanges(pullChanges, local);
+
+      const finalLocal = await this.vaultHelper.localManifest();
+      this.syncManifest = this.nextManifest(finalLocal, remoteInfo.tree);
+      await this.saveSettings();
+      this.lastSyncAt = new Date().toLocaleString();
+      this.lastChangeCount = pullChanges.length;
+      this.lastError = "";
+      this.setStatus(
+        `GitHub Sync: pulled ${pullChanges.length} change${pullChanges.length === 1 ? "" : "s"}`,
+      );
+      new Notice(`Pulled ${pullChanges.length} change${pullChanges.length === 1 ? "" : "s"} from GitHub.`);
+      this.recordSyncLog(startedAt, "pull", "success", pullChanges);
+    } catch (error) {
+      this.recordSyncLog(
+        startedAt,
+        "pull",
+        "error",
+        changesForLog,
+        undefined,
+        error instanceof Error ? error.message : String(error),
+      );
+      this.fail("Pull failed", error);
+    } finally {
+      this.syncing = false;
+      if (this.queued) void this.sync("queued");
+    }
+  }
+
 
   private validateSettings() {
     if (!this.settings.token.trim())

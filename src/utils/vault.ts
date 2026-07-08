@@ -57,7 +57,7 @@ export class VaultHelper {
     );
   }
 
-  localPath(remotePath: string): string | null {
+  localPath(remotePath: string, prefixOverride?: string): string | null {
     const p = normalizePath(remotePath);
     if (p === "README" || p === "README.md") {
       return p;
@@ -65,16 +65,69 @@ export class VaultHelper {
     
     const vaultName = this.app.vault.getName();
     const root = this.getSettings().rootPath.trim();
-    const prefix = normalizePath([vaultName, root].filter(Boolean).join("/"));
+    // Allow callers (e.g. remoteTree) to supply the real remote prefix after
+    // auto-detecting it from GitHub — guards against rootPath or vault-name
+    // mismatches between devices.
+    const prefix = prefixOverride ?? normalizePath([vaultName, root].filter(Boolean).join("/"));
     
-    // Use case-insensitive comparison so that vaults whose name differs in
-    // casing between desktop and mobile (e.g. "Personal" vs "personal") still
-    // resolve correctly and don't create duplicate folders on mobile.
+    // Case-insensitive so vault name casing differences between desktop/mobile
+    // (e.g. "Personal" vs "personal") don't cause duplicate folders.
     const pLower = p.toLowerCase();
     const prefixLower = prefix.toLowerCase();
 
     if (pLower === prefixLower) return "";
     return pLower.startsWith(`${prefixLower}/`) ? p.slice(prefix.length + 1) : null;
+  }
+
+  /**
+   * Given the raw list of paths from GitHub's recursive tree API, find the
+   * remote folder that belongs to this vault. Returns the prefix string to
+   * pass back into localPath().
+   *
+   * Strategy:
+   *  1. Try exact match with the constructed prefix (vaultName[/rootPath]).
+   *  2. Try case-insensitive match with the same prefix.
+   *  3. Fall back to just the vault name, case-insensitive.
+   * This survives rootPath mismatches between devices and name casing quirks.
+   */
+  detectRemotePrefix(remotePaths: string[]): string {
+    const vaultName = this.app.vault.getName();
+    const root = this.getSettings().rootPath.trim();
+    const expectedPrefix = normalizePath([vaultName, root].filter(Boolean).join("/"));
+    const expectedLower = expectedPrefix.toLowerCase();
+
+    // Build the set of top-level folder candidates that look like our vault
+    const candidates = new Set<string>();
+    for (const rp of remotePaths) {
+      const firstSlash = rp.indexOf("/");
+      if (firstSlash === -1) continue;
+      const topFolder = rp.slice(0, firstSlash);
+      candidates.add(topFolder);
+    }
+
+    // 1. Exact prefix match
+    if (remotePaths.some(rp => rp.startsWith(expectedPrefix + "/") || rp === expectedPrefix))
+      return expectedPrefix;
+
+    // 2. Case-insensitive prefix match
+    for (const rp of remotePaths) {
+      const rpLower = rp.toLowerCase();
+      if (rpLower.startsWith(expectedLower + "/") || rpLower === expectedLower)
+        return rp.slice(0, expectedPrefix.length);
+    }
+
+    // 3. Case-insensitive vault name only (ignore rootPath mismatch between devices)
+    const vaultLower = vaultName.toLowerCase();
+    for (const candidate of candidates) {
+      if (candidate.toLowerCase() === vaultLower) {
+        const rootSuffix = root ? `/${root}` : "";
+        return candidate + rootSuffix;
+      }
+    }
+
+    // Give up and use the constructed prefix — localPath will return null for
+    // everything which will surface as an error the user can diagnose.
+    return expectedPrefix;
   }
 
   conflictPath(path: string): string {

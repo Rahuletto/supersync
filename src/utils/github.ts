@@ -236,9 +236,11 @@ export class GithubClient {
         "GitHub truncated the repository tree. Split the vault with Root path or reduce repository size before syncing.",
       );
     const tree: RemoteTree = {};
+    const rawPaths = treeResponse.tree.filter(i => i.type === "blob").map(i => i.path);
+    const remotePrefix = this.vaultHelper.detectRemotePrefix(rawPaths);
     for (const item of treeResponse.tree) {
       if (item.type !== "blob") continue;
-      const path = this.vaultHelper.localPath(item.path);
+      const path = this.vaultHelper.localPath(item.path, remotePrefix);
       if (!path || this.vaultHelper.isIgnored(path)) continue;
       if (item.size && item.size > GITHUB_BLOB_LIMIT)
         throw new Error(

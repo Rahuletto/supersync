@@ -176,6 +176,14 @@ export class SyncStatusView extends ItemView {
     });
     syncBtn.onClickEvent(() => void this.plugin.sync("panel"));
 
+    // Pull Changes button
+    const pullBtn = btnContainer.createEl("button", { text: "⬇ Pull Changes" });
+    pullBtn.setCssStyles({
+      width: "100%",
+      padding: "10px",
+      fontSize: "0.95em"
+    });
+    pullBtn.onClickEvent(() => void this.plugin.pull());
     // Secondary row of buttons
     const secondaryRow = btnContainer.createDiv();
     secondaryRow.setCssStyles({
