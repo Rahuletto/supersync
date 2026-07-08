@@ -70,3 +70,32 @@ export function planChanges(
   }
   return changes;
 }
+
+export function planPullChanges(
+  local: Manifest,
+  remote: RemoteTree,
+  baseManifest: Manifest,
+  isIgnored: (path: string) => boolean = () => false,
+): Change[] {
+  const changes: Change[] = [];
+  const paths = new Set([
+    ...Object.keys(remote),
+    ...Object.keys(baseManifest),
+  ]);
+  for (const path of [...paths].sort()) {
+    if (isIgnored(path)) continue;
+    const localSha = local[path]?.sha ?? null;
+    const remoteSha = remote[path]?.sha ?? null;
+    const baseSha = baseManifest[path]?.sha ?? null;
+
+    if (remoteSha) {
+      if (localSha !== remoteSha)
+        changes.push({ type: "download", path, remoteSha });
+      continue;
+    }
+
+    if (localSha && baseSha && localSha === baseSha)
+      changes.push({ type: "deleteLocal", path });
+  }
+  return changes;
+}

@@ -10,6 +10,7 @@ import {
   Manifest,
   RemoteTree,
   planChanges as classifyChanges,
+  planPullChanges,
 } from "./src/sync-core";
 import {
   Settings,
@@ -423,10 +424,11 @@ export default class SuperSyncPlugin extends Plugin {
       ]);
       this.syncManifest = savedManifest;
 
-      const allChanges = this.planChanges(local, remoteInfo.tree);
-      // Pull = downloads only, never upload local edits
-      const pullChanges = allChanges.filter(
-        (c) => c.type === "download" || c.type === "deleteLocal",
+      const pullChanges = planPullChanges(
+        local,
+        remoteInfo.tree,
+        savedManifest,
+        (path) => this.vaultHelper.isIgnored(path),
       );
 
       changesForLog = pullChanges;
