@@ -254,10 +254,17 @@ export class GithubClient {
   async downloadBytes(path: string): Promise<ArrayBuffer> {
     const settings = this.getSettings();
     await this.vaultHelper.assertRemoteDownloadable(path);
-    const data = await this.github<{ content: string; encoding: string }>(
+    const data = await this.github<{ content: string; encoding: string; download_url?: string }>(
       "GET",
       `/contents/${encodePath(this.vaultHelper.remotePath(path))}?ref=${encodeURIComponent(settings.branch)}`,
     );
+    // GitHub returns encoding="none" with a download_url for files >1 MB.
+    if (data.encoding === "none" && data.download_url) {
+      const response = await requestUrl({ url: data.download_url, method: "GET", throw: false });
+      if (response.status < 200 || response.status >= 300)
+        throw new Error(`Failed to download ${path} (${response.status})`);
+      return response.arrayBuffer;
+    }
     if (data.encoding !== "base64")
       throw new Error(`Unsupported GitHub content encoding for ${path}`);
     const bytes = bytesFromBase64(data.content.replace(/\s/g, ""));
@@ -275,11 +282,19 @@ export class GithubClient {
       content: string;
       encoding: string;
       size?: number;
+      download_url?: string;
     }>(
       "GET",
       `/contents/${encodePath(this.vaultHelper.remotePath(path))}?ref=${encodeURIComponent(commitSha)}`,
     );
     if (data.size) this.vaultHelper.assertSyncableSize(path, data.size);
+    // GitHub returns encoding="none" with a download_url for files >1 MB.
+    if (data.encoding === "none" && data.download_url) {
+      const response = await requestUrl({ url: data.download_url, method: "GET", throw: false });
+      if (response.status < 200 || response.status >= 300)
+        throw new Error(`Failed to download ${path} (${response.status})`);
+      return response.arrayBuffer;
+    }
     if (data.encoding !== "base64")
       throw new Error(`Unsupported GitHub content encoding for ${path}`);
     const bytes = bytesFromBase64(data.content.replace(/\s/g, ""));

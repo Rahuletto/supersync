@@ -569,7 +569,18 @@ export default class SuperSyncPlugin extends Plugin {
           remoteSha: remoteSha,
           size: remote[path].size ?? local[path].size,
         };
+      } else if (!local[path] && remote[path]) {
+        // File exists on remote but was deleted locally. Record a tombstone so
+        // the next sync knows the deletion was intentional and plans
+        // deleteRemote instead of re-downloading the file.
+        next[path] = {
+          sha: "",
+          remoteSha: remote[path].sha,
+          size: remote[path].size,
+        };
       }
+      // If local[path] exists but remote[path] doesn't, the file is
+      // local-only (upload pending) — don't add to the manifest yet.
     }
     return next;
   }
