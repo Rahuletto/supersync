@@ -12,6 +12,11 @@ import {
 export class VaultHelper {
   public pluginWrites = new Set<string>();
 
+  /** Call at the start of every sync so stale write-guards don't suppress real user edits. */
+  clearPluginWrites() {
+    this.pluginWrites.clear();
+  }
+
   constructor(
     private app: App,
     private getSettings: () => Settings,
@@ -62,8 +67,14 @@ export class VaultHelper {
     const root = this.getSettings().rootPath.trim();
     const prefix = normalizePath([vaultName, root].filter(Boolean).join("/"));
     
-    if (p === prefix) return "";
-    return p.startsWith(`${prefix}/`) ? p.slice(prefix.length + 1) : null;
+    // Use case-insensitive comparison so that vaults whose name differs in
+    // casing between desktop and mobile (e.g. "Personal" vs "personal") still
+    // resolve correctly and don't create duplicate folders on mobile.
+    const pLower = p.toLowerCase();
+    const prefixLower = prefix.toLowerCase();
+
+    if (pLower === prefixLower) return "";
+    return pLower.startsWith(`${prefixLower}/`) ? p.slice(prefix.length + 1) : null;
   }
 
   conflictPath(path: string): string {
@@ -180,7 +191,15 @@ export class VaultHelper {
     if (settings.syncObsidianConfig) {
       await this.scanFolderRecursive(this.app.vault.configDir, paths);
     }
-    return paths.filter((p) => !this.isIgnored(p));
+    // Deduplicate: getFiles() already includes configDir TFiles on some platforms,
+    // so scanFolderRecursive can produce duplicates that cause spurious upload loops.
+    const seen = new Set<string>();
+    return paths.filter((p) => {
+      if (this.isIgnored(p)) return false;
+      if (seen.has(p)) return false;
+      seen.add(p);
+      return true;
+    });
   }
 
   private async scanFolderRecursive(folderPath: string, paths: string[]): Promise<void> {
@@ -305,15 +324,20 @@ export class VaultHelper {
           await this.app.vault.adapter.mkdir(normalized);
         }
       } else {
-        const exist = this.app.vault.getAbstractFileByPath(normalized);
-        if (!exist) {
+        // Check the in-memory index first (fast path), then fall back to the
+        // adapter (filesystem) because on mobile the index can lag after a
+        // rapid sequence of downloads.
+        const inIndex = this.app.vault.getAbstractFileByPath(normalized);
+        const onDisk = inIndex ? true : await this.app.vault.adapter.exists(normalized);
+        if (!onDisk) {
           try {
             await this.app.vault.createFolder(normalized);
-          } catch (error) {
-            const msg = error instanceof Error ? error.message : String(error);
-            if (!msg.toLowerCase().includes("already exists")) {
-              throw error;
-            }
+          } catch {
+            // Folder may have been created concurrently (e.g. by another change
+            // in the same sync batch). Verify it actually exists now rather than
+            // relying on an error-message string that varies by platform/locale.
+            const nowExists = await this.app.vault.adapter.exists(normalized);
+            if (!nowExists) throw new Error(`Failed to create folder: ${normalized}`);
           }
         }
       }

@@ -291,6 +291,10 @@ export default class SuperSyncPlugin extends Plugin {
     this.syncing = true;
     this.queued = false;
     this.lastSyncTime = Date.now();
+    // Clear stale write-guards so real user edits made after the previous sync
+    // are not silently swallowed by the pluginWrites guard, especially on mobile
+    // where syncs fire very frequently (startup + interval + file-change).
+    this.vaultHelper.clearPluginWrites();
 
     if (reason === "force") {
       this.syncManifest = {};
